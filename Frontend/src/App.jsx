@@ -17,6 +17,7 @@ import {
 import ChatScreen from "./screens/ChatScreen";
 import { ResetPassword } from "./screens/ResetPassword";
 import CaptainDashboard from "./pages/CaptainDashboard";
+import { ForgotPassword } from "./screens/ForgotPassword";
 
 function App() {
   return (
@@ -81,6 +82,7 @@ function App() {
             <Route path="/dashboard" element={<CaptainDashboard />} />
             <Route path="/:userType/chat/:rideId" element={<ChatScreen />} />
             <Route path ="/resetpassword/:token" element={<ResetPassword/>}></Route>
+            <Route path="/forgotPassword" element={<ForgotPassword />}></Route>
             
           </Routes>
         </BrowserRouter>

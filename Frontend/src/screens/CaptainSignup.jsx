@@ -5,9 +5,6 @@ import { Button, Heading, Input } from "../components";
 import axios from "axios";
 import { ArrowLeft, ChevronRight } from "lucide-react";
 
-const background =
-  "https://images.unsplash.com/photo-1607746882042-944635dfe10e?ixlib=rb-4.0.3&auto=format&fit=crop&w=1950&q=80";
-
 function CaptainSignup() {
   const [responseError, setResponseError] = useState("");
   const [showVehiclePanel, setShowVehiclePanel] = useState(false);
@@ -66,17 +63,9 @@ function CaptainSignup() {
   }, [responseError]);
 
   return (
-    <div className="relative min-h-screen flex items-center justify-center px-4 sm:px-6 py-6">
-      {/* Background */}
-      <img
-        src={background}
-        alt="Signup Background"
-        className="absolute inset-0 w-full h-full object-cover z-0"
-      />
-      <div className="absolute inset-0 bg-black/60 backdrop-blur-sm z-0" />
-
+    <div className="relative min-h-screen flex items-center justify-center px-4 sm:px-6 py-6 bg-gray-100">
       {/* Form Box */}
-      <div className="relative z-10 w-full max-w-xl bg-white/10 border border-white/20 backdrop-blur-md text-white rounded-2xl shadow-xl p-4 sm:p-6">
+      <div className="relative z-10 w-full max-w-xl bg-white border border-gray-200 text-gray-800 rounded-2xl shadow-xl p-4 sm:p-6">
         <Heading title="Captain Sign Up" />
 
         <form onSubmit={handleSubmit(signupCaptain)} className="mt-4 space-y-3">
@@ -123,7 +112,7 @@ function CaptainSignup() {
                 </p>
               )}
               <div
-                className="cursor-pointer flex justify-center items-center gap-2 py-2.5 font-semibold bg-green-600 hover:bg-green-700 transition rounded-xl"
+                className="cursor-pointer flex justify-center items-center gap-2 py-2.5 font-semibold bg-green-600 hover:bg-green-700 transition rounded-xl text-white"
                 onClick={() => setShowVehiclePanel(true)}
               >
                 Next <ChevronRight size={18} />
@@ -190,7 +179,7 @@ function CaptainSignup() {
           />
         </div>
 
-        <p className="text-xs text-gray-300 mt-4 text-center">
+        <p className="text-xs text-gray-500 mt-4 text-center">
           This site is protected by reCAPTCHA and the Google{" "}
           <span className="underline">Privacy Policy</span> and{" "}
           <span className="underline">Terms of Service</span> apply.

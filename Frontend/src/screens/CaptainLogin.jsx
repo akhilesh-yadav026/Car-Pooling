@@ -4,10 +4,6 @@ import { Link, useNavigate } from "react-router-dom";
 import { Button, Heading, Input } from "../components";
 import axios from "axios";
 
-// Background image (replace with your preferred Unsplash URL)
-const background =
-  "https://images.unsplash.com/photo-1607746882042-944635dfe10e?ixlib=rb-4.0.3&auto=format&fit=crop&w=1950&q=80";
-
 function CaptainLogin() {
   const [responseError, setResponseError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -51,18 +47,9 @@ function CaptainLogin() {
   }, [responseError]);
 
   return (
-    <div className="relative min-h-screen flex items-center justify-center">
-      {/* Background Image */}
-      <img
-        src={background}
-        alt="Captain Login Background"
-        className="absolute inset-0 w-full h-full object-cover z-0"
-      />
-      {/* Overlay */}
-      <div className="absolute inset-0 bg-black/60 backdrop-blur-sm z-0" />
-
+    <div className="relative min-h-screen flex items-center justify-center bg-gray-100">
       {/* Login Box */}
-      <div className="relative z-10 w-full max-w-md bg-white/10 border border-white/20 backdrop-blur-md text-white rounded-2xl shadow-xl p-8 sm:p-10 mx-4">
+      <div className="relative z-10 w-full max-w-md bg-white border border-gray-200 rounded-2xl shadow-xl p-8 sm:p-10 mx-4">
         <Heading title="Captain Login" />
 
         <form onSubmit={handleSubmit(loginCaptain)} className="mt-6 space-y-4">
@@ -86,7 +73,7 @@ function CaptainLogin() {
           <div className="flex justify-end text-sm mb-2">
             <Link
               to="/forgotPassword"
-              className="underline hover:text-gray-200"
+              className="underline hover:text-gray-600"
             >
               Forgot Password?
             </Link>
@@ -110,7 +97,7 @@ function CaptainLogin() {
           />
         </div>
 
-        <p className="text-xs text-gray-300 mt-6 text-center">
+        <p className="text-xs text-gray-500 mt-6 text-center">
           This site is protected by reCAPTCHA and the Google{" "}
           <span className="underline">Privacy Policy</span> and{" "}
           <span className="underline">Terms of Service</span> apply.
