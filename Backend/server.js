@@ -37,6 +37,8 @@ app.use("/user", userRoutes);
 app.use("/captain", captainRoutes);
 app.use("/map", mapsRoutes);
 app.use("/ride", rideRoutes);
+app.use("/payment", require("./routes/paymentRoutes")); 
+
 
 server.listen(PORT, () => {
   console.log("Server is listening on port", PORT);

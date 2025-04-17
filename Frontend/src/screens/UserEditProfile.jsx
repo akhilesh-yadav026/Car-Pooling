@@ -74,112 +74,117 @@ function UserEditProfile() {
   }, [successMessage]);
 
   return (
-    <div className="w-full h-dvh flex flex-col p-4 pt-6 bg-gray-50">
-      <div className="max-w-md mx-auto w-full flex-1 flex flex-col">
+    <div className="w-full min-h-screen bg-gray-100 flex items-center justify-center px-4 py-10">
+      <div className="w-full max-w-lg bg-white rounded-2xl shadow-xl p-6 md:p-10 transition-all">
         {/* Header */}
-        <div className="flex items-center gap-3 mb-6">
+        <div className="flex items-center gap-4 mb-8 ">
           <button
             onClick={() => navigate(-1)}
-            className="p-1 rounded-full hover:bg-gray-100 transition-colors"
+            className="p-2 mb-4 rounded-full hover:bg-gray-100 transition-colors"
             aria-label="Go back"
           >
             <ArrowLeft strokeWidth={2.5} className="h-5 w-5 text-gray-600" />
           </button>
           <Heading
-            title={"Edit Profile"}
-            className="text-2xl font-bold text-gray-800"
+            title="Edit Profile"
+            className="text-3xl font-semibold text-gray-800"
           />
         </div>
-
+  
         {/* Form */}
         <form
           onSubmit={handleSubmit(updateUserProfile)}
-          className="flex-1 flex flex-col"
+          className="space-y-6"
         >
-          <div className="space-y-4 flex-1">
+          <div className="space-y-5">
             <Input
-              label={"Email Address"}
-              type={"email"}
-              name={"email"}
+              label="Email Address"
+              type="email"
+              name="email"
               register={register}
               error={errors.email}
               disabled={true}
               className="bg-gray-100"
             />
-
-            <Input
-              label={"First Name"}
-              name={"firstname"}
-              register={register}
-              validation={{
-                required: "First name is required",
-                minLength: {
-                  value: 2,
-                  message: "Minimum 2 characters required",
-                },
-                maxLength: {
-                  value: 30,
-                  message: "Maximum 30 characters allowed",
-                },
-              }}
-              error={errors.firstname}
-            />
-
-            <Input
-              label={"Last Name"}
-              name={"lastname"}
-              register={register}
-              validation={{
-                required: "Last name is required",
-                minLength: {
-                  value: 2,
-                  message: "Minimum 2 characters required",
-                },
-                maxLength: {
-                  value: 30,
-                  message: "Maximum 30 characters allowed",
-                },
-              }}
-              error={errors.lastname}
-            />
+  
+            <div className="border-t pt-4 mt-2 space-y-5">
+              <Input
+                label="First Name"
+                name="firstname"
+                register={register}
+                validation={{
+                  required: "First name is required",
+                  minLength: {
+                    value: 2,
+                    message: "Minimum 2 characters required",
+                  },
+                  maxLength: {
+                    value: 30,
+                    message: "Maximum 30 characters allowed",
+                  },
+                }}
+                error={errors.firstname}
+              />
+  
+              <Input
+                label="Last Name"
+                name="lastname"
+                register={register}
+                validation={{
+                  required: "Last name is required",
+                  minLength: {
+                    value: 2,
+                    message: "Minimum 2 characters required",
+                  },
+                  maxLength: {
+                    value: 30,
+                    message: "Maximum 30 characters allowed",
+                  },
+                }}
+                error={errors.lastname}
+              />
+            </div>
           </div>
-
-          {/* Messages */}
+  
+          {/* Feedback Messages */}
           {responseError && (
             <motion.p
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              className="text-sm text-center mb-4 text-red-500"
+              className="text-sm text-center text-red-500"
             >
               {responseError}
             </motion.p>
           )}
-
+  
           {successMessage && (
             <motion.div
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              className="flex items-center justify-center gap-2 mb-4 text-green-600"
+              className="flex items-center justify-center gap-2 text-green-600"
             >
               <CheckCircle2 className="h-5 w-5" />
               <span>{successMessage}</span>
             </motion.div>
           )}
-
+  
           {/* Submit Button */}
-          <Button
-            title={"Update Profile"}
-            loading={loading}
-            type="submit"
-            disabled={!isDirty || loading}
-            className={`mt-6 ${
-              !isDirty ? "opacity-50 cursor-not-allowed" : ""
-            }`}
-          />
+          <div className="pt-4">
+            <Button
+              title="Update Profile"
+              loading={loading}
+              type="submit"
+              disabled={!isDirty || loading}
+              className={`w-full py-3 rounded-xl font-medium ${
+                !isDirty ? "opacity-50 cursor-not-allowed" : ""
+              }`}
+            />
+          </div>
         </form>
       </div>
     </div>
   );
+  
 }
 
 export default UserEditProfile;

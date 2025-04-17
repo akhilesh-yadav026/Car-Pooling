@@ -30,9 +30,8 @@ function NewRide({
   return (
     <>
       <div
-        className={`${
-          showPanel ? "bottom-0" : "-bottom-[60%]"
-        } transition-all duration-500 absolute bg-white w-full rounded-t-xl p-4 pt-0`}
+        className={`${showPanel ? "bottom-0" : "-bottom-[60%]"
+          } transition-all duration-500 absolute bg-white w-full rounded-t-xl p-4 pt-0`}
       >
         <div
           onClick={() => {

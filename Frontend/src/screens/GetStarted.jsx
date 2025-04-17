@@ -96,17 +96,19 @@ function GetStarted() {
                 <img
                   src="https://developer.apple.com/assets/elements/badges/download-on-the-app-store.svg"
                   alt="Download on the App Store"
-                  className="h-10 w-auto hover:opacity-90 transition-opacity"
+                  className="h-[40px] max-w-[100px] object-contain hover:opacity-90 transition-opacity"
                 />
               </a>
               <a href="#" className="inline-block">
                 <img
                   src="https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png"
                   alt="Get it on Google Play"
-                  className="h-12 w-auto hover:opacity-90 transition-opacity"
+                  className="h-[54px] max-w-[120px] -mt-[7px] object-contain hover:opacity-90 transition-opacity"
                 />
               </a>
             </div>
+
+
           </div>
         </main>
 

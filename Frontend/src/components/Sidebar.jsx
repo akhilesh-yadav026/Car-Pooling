@@ -9,19 +9,23 @@ function Sidebar() {
   const [showSidebar, setShowSidebar] = useState(false);
   const [newUser, setNewUser] = useState({});
   const navigate = useNavigate();
-  const role = JSON.parse(localStorage.getItem("userData"))
-
-
+  const [role, setRole] = useState({ type: "" });
 
   useEffect(() => {
-    const userData = JSON.parse(localStorage.getItem("userData"));
-    setNewUser(userData);
+    try {
+      const userData = JSON.parse(localStorage.getItem("userData") || "{}");
+      setNewUser(userData);
+      setRole(userData || { type: "" });
+    } catch (error) {
+      console.error("Error parsing user data:", error);
+      localStorage.removeItem("userData");
+    }
   }, []);
 
   const logout = async () => {
     try {
       await axios.get(
-        `${import.meta.env.VITE_SERVER_URL}/${newUser.type}/profile`,
+        `${import.meta.env.VITE_SERVER_URL}/${newUser?.type}/profile`,
         {
           headers: { token },
         }
@@ -31,6 +35,8 @@ function Sidebar() {
       navigate("/");
     } catch (error) {
       console.error("Logout failed:", error);
+      localStorage.clear();
+      navigate("/");
     }
   };
 
@@ -46,8 +52,9 @@ function Sidebar() {
 
       {/* Sidebar */}
       <div
-        className={`fixed top-0 left-0 z-30 w-80 h-full bg-white transform transition-transform duration-300 ease-in-out shadow-xl flex flex-col justify-between ${showSidebar ? "translate-x-0" : "-translate-x-full"
-          }`}
+        className={`fixed top-0 left-0 z-30 w-80 h-full bg-white transform transition-transform duration-300 ease-in-out shadow-xl flex flex-col justify-between ${
+          showSidebar ? "translate-x-0" : "-translate-x-full"
+        }`}
       >
         <div className="p-6 overflow-y-auto">
           {/* Header */}
@@ -56,38 +63,40 @@ function Sidebar() {
           {/* Avatar and Info */}
           <div className="flex flex-col items-center mb-8">
             <div className="w-24 h-24 rounded-full bg-blue-600 text-white flex items-center justify-center shadow-lg text-4xl font-bold select-none">
-              {newUser?.data?.fullname?.firstname?.[0]}
-              {newUser?.data?.fullname?.lastname?.[0]}
+              {newUser?.data?.fullname?.firstname?.[0] || "U"}
+              {newUser?.data?.fullname?.lastname?.[0] || "S"}
             </div>
             <h2 className="mt-4 text-xl font-semibold text-gray-900">
-              {newUser?.data?.fullname?.firstname}{" "}
-              {newUser?.data?.fullname?.lastname}
+              {newUser?.data?.fullname?.firstname || "User"}{" "}
+              {newUser?.data?.fullname?.lastname || ""}
             </h2>
-            <p className="text-sm text-gray-500 mt-1">{newUser?.data?.email}</p>
+            <p className="text-sm text-gray-500 mt-1">
+              {newUser?.data?.email || "user@example.com"}
+            </p>
           </div>
 
           {/* Menu Links */}
-          
-
           <div className="space-y-3">
             <SidebarItem
               icon={<CircleUserRound className="text-gray-700" />}
               label="Edit Profile"
-              to={`/${newUser?.type}/edit-profile`}
+              to={`/${newUser?.type || "user"}/edit-profile`}
               onClick={() => setShowSidebar(false)}
             />
             <SidebarItem
               icon={<History className="text-gray-700" />}
               label="Ride History"
-              to={`/${newUser?.type}/rides`}
+              to={`/${newUser?.type || "user"}/rides`}
               onClick={() => setShowSidebar(false)}
             />
-            {role.type == "captain" && ( <SidebarItem
-              icon={<History className="text-gray-700" />}
-              label="Dashboard"
-              to={`/dashboard`}
-              onClick={() => setShowSidebar(false)}
-            />)}
+            {role?.type === "captain" && (
+              <SidebarItem
+                icon={<History className="text-gray-700" />}
+                label="Dashboard"
+                to="/dashboard"
+                onClick={() => setShowSidebar(false)}
+              />
+            )}
           </div>
         </div>
 
