@@ -4,6 +4,10 @@ const captainService = require("../services/captain.service");
 const { validationResult } = require("express-validator");
 const blacklistTokenModel = require("../models/blacklistToken.model");
 const rideModel = require("../models/ride.model");
+const mailUtil = require("../util/MailUtil");
+const jwt = require("jsonwebtoken");
+const secret = "secret";
+const bcrypt  = require("bcrypt")
 
 module.exports.registerCaptain = asyncHandler(async (req, res) => {
   const errors = validationResult(req);
@@ -136,3 +140,44 @@ module.exports.captainStats = asyncHandler(async (req, res) => {
     hoursChange: 0 // % change from yesterday
   });
 });
+
+module.exports.forgotPassword = async (req, res) => {
+  const email = req.body.email;
+  const foundCaptain = await captainModel.findOne({ email: email });
+
+  if (foundCaptain) {
+    const token = jwt.sign(foundCaptain.toObject(), secret);
+    console.log(token);
+    const url = `http://localhost:5173/captain/resetpassword/${token}`;
+    const mailContent = `<html>
+                          <a href ="${url}">rest password</a>
+                          </html>`;
+    //email...
+    await mailUtil.sendingMail(foundCaptain.email, "reset password", mailContent);
+    res.json({
+      message: "reset password link sent to mail.",
+    });
+  } else {
+    res.json({
+      message: "user not found register first..",
+    });
+  }
+};
+
+module.exports.resetpassword = async (req, res) => {
+  const token = req.body.token; //decode --> email | id
+  const newPassword = req.body.password;
+
+  const captainFromToken = jwt.verify(token, secret);
+  //object -->email,id..
+  //password encrypt...
+  const salt = bcrypt.genSaltSync(10);
+  const hashedPasseord = bcrypt.hashSync(newPassword,salt);
+
+  const updatedCaptain= await captainModel.findByIdAndUpdate(captainFromToken._id, {
+    password: hashedPasseord,
+  });
+  res.json({
+    message: "password updated successfully..",
+  });
+};

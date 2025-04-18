@@ -66,7 +66,7 @@ function NewRide({
             <div className="text-right">
               <h1 className="font-semibold text-lg">₹ {rideData?.fare}</h1>
               <p className="text-xs text-gray-500 ">
-                {(Number(rideData?.distance.toFixed(2)) / 1000).toFixed(1)} Km
+                {rideData?.distance ? (Number(rideData.distance.toFixed(2)) / 1000).toFixed(1) + ' Km' : 'N/A'}
               </p>
             </div>
           </div>
@@ -95,11 +95,11 @@ function NewRide({
               <MapPinMinus size={18} />
               <div>
                 <h1 className="text-lg font-semibold leading-5">
-                  {rideData.pickup.split(", ")[0]}
+                  {rideData?.pickup?.split(", ")[0]}
                 </h1>
                 <div className="flex">
                   <p className="text-xs text-gray-800 inline">
-                    {rideData.pickup.split(", ").map((location, index) => {
+                    {rideData?.pickup?.split(", ").map((location, index) => {
                       if (index > 0) {
                         return (
                           <span key={index}>
@@ -121,11 +121,11 @@ function NewRide({
               <MapPinPlus size={18} />
               <div>
                 <h1 className="text-lg font-semibold leading-5">
-                  {rideData.destination.split(", ")[0]}
+                  {rideData?.destination?.split(", ")[0]}
                 </h1>
                 <div className="flex">
                   <p className="text-xs text-gray-800 inline">
-                    {rideData.destination.split(", ").map((location, index) => {
+                    {rideData?.destination?.split(", ").map((location, index) => {
                       if (index > 0) {
                         return (
                           <span key={index}>
@@ -148,7 +148,7 @@ function NewRide({
               <CreditCard size={18} />
               <div>
                 <h1 className="text-lg font-semibold leading-6">
-                  ₹ {rideData.fare}
+                  ₹ {rideData?.fare}
                 </h1>
                 <p className="text-xs text-gray-800 ">Cash</p>
               </div>

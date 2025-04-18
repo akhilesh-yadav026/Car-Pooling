@@ -7,7 +7,7 @@ const StatsCard = ({ title, value, change, isCurrency, isRating, unit }) => {
         <h3 className="text-sm font-medium text-gray-500">{title}</h3>
         <div className="flex items-end justify-between mt-2">
           <p className="text-2xl font-bold text-gray-800">
-            {isCurrency && '$'}{value}{unit && ` ${unit}`}
+            {isCurrency && ''}{value}{unit && ` ${unit}`}
           </p>
           {change !== undefined && (
             <span className={`text-sm ${isPositive ? 'text-green-600' : 'text-red-600'} flex items-center`}>

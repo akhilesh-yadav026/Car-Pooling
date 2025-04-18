@@ -18,6 +18,10 @@ import ChatScreen from "./screens/ChatScreen";
 import { ResetPassword } from "./screens/ResetPassword";
 import CaptainDashboard from "./pages/CaptainDashboard";
 import { ForgotPassword } from "./screens/ForgotPassword";
+import { CaptainForgotPassword } from "./screens/CaptainForgotPassword";
+import { CaptainResetPassword } from "./screens/CaptainResetPassword";
+import CaptainEarnings from "./pages/CaptainEarning";
+
 
 function App() {
   return (
@@ -36,6 +40,9 @@ function App() {
             />
             <Route path="/login" element={<UserLogin />} />
             <Route path="/signup" element={<UserSignup />} />
+              <Route path ="/resetpassword/:token" element={<ResetPassword/>}></Route>
+              <Route path="/forgotPassword" element={<ForgotPassword />}></Route>
+              
             <Route
               path="/user/edit-profile"
               element={
@@ -63,6 +70,8 @@ function App() {
             />
             <Route path="/captain/login" element={<CaptainLogin />} />
             <Route path="/captain/signup" element={<CaptainSignup />} />
+              <Route path="/captain/forgotPassword" element={<CaptainForgotPassword />}></Route>
+              <Route path="/captain/resetpassword/:token" element={<CaptainResetPassword />}></Route>
             <Route
               path="/captain/edit-profile"
               element={
@@ -80,10 +89,9 @@ function App() {
               }
             />
             <Route path="/dashboard" element={<CaptainDashboard />} />
+            <Route path="/captain/earnings" element={<CaptainEarnings />}></Route>
+      
             <Route path="/:userType/chat/:rideId" element={<ChatScreen />} />
-            <Route path ="/resetpassword/:token" element={<ResetPassword/>}></Route>
-            <Route path="/forgotPassword" element={<ForgotPassword />}></Route>
-            
           </Routes>
         </BrowserRouter>
       </div>

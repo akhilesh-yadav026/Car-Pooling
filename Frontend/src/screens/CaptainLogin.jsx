@@ -58,6 +58,13 @@ function CaptainLogin() {
             type="email"
             name="email"
             register={register}
+            validation={{
+              required: "Email is required",
+              pattern: {
+                value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+                message: "Invalid email address"
+              }
+            }}
             error={errors.email}
           />
           <Input
@@ -65,6 +72,13 @@ function CaptainLogin() {
             type="password"
             name="password"
             register={register}
+            validation={{
+              required: "Password is required",
+              minLength: {
+                value: 8,
+                message: "Password must be at least 8 characters"
+              }
+            }}
             error={errors.password}
           />
           {responseError && (
@@ -72,7 +86,7 @@ function CaptainLogin() {
           )}
           <div className="flex justify-end text-sm mb-2">
             <Link
-              to="/forgotPassword"
+              to="/captain/forgotPassword"  // Matches your route in App.js
               className="underline hover:text-gray-600"
             >
               Forgot Password?

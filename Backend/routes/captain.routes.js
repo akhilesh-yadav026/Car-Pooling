@@ -28,5 +28,8 @@ router.get("/profile", authCaptain, captainController.captainProfile);
 
 router.get("/logout", authCaptain, captainController.logoutCaptain);
 router.get("/stats", authCaptain, captainController.captainStats);
+router.post("/forgotpassword",captainController.forgotPassword)
+router.post("/resetpassword",captainController.resetpassword)
+
 
 module.exports = router;

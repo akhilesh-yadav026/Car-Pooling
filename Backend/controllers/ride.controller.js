@@ -28,7 +28,10 @@ module.exports.chatDetails = async (req, res) => {
         fullname: ride.captain?.fullname,
         phone: ride.captain?.phone,
       },
+      pickup: ride.pickup,
+      destination: ride.destination
     };
+    
 
     res.status(200).json(response);
   } catch (error) {
