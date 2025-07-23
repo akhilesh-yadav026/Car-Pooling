@@ -35,6 +35,7 @@ const userSchema = new mongoose.Schema(
     socketId: {
       type: String,
     },
+    
     rides: [
       {
         type: mongoose.Schema.Types.ObjectId,

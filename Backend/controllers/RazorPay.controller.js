@@ -5,8 +5,8 @@ const bodyParser = require("body-parser");
 
 // Razorpay instance
 const razorpay = new Razorpay({
-  key_id: "rzp_test_fiznZwAdVHPiRo",
-  key_secret: "O8vhKBbVJwkDF00tWsqvSGKw",
+  key_id: process.env.RAZORPAY_KEY_ID,
+  key_secret: process.env.RAZORPAY_KEY_SECRET,
 });
 
 // API to create an order
@@ -35,7 +35,7 @@ const crypto = require("crypto");
 const verify_order = async (req, res) => {
   try {
     const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = req.body;
-    const secret = process.env.RAZORPAY_SECRET || "O8vhKBbVJwkDF00tWsqvSGKw"; // Store in env ideally
+    const secret = process.env.RAZORPAY_KEY_SECRET  
 
     const generated_signature = crypto
       .createHmac("sha256", secret)

@@ -3,6 +3,8 @@ const userModel = require("../models/user.model");
 const userService = require("../services/user.service");
 const { validationResult } = require("express-validator");
 const blacklistTokenModel = require("../models/blacklistToken.model");
+const rideModel = require("../models/ride.model");
+const captainModel = require("../models/captain.model");
 const mailUtil = require("../util/MailUtil");
 const jwt = require("jsonwebtoken");
 const secret = "secret";
@@ -127,3 +129,92 @@ module.exports.resetpassword = async (req, res) => {
     message: "password updated successfully..",
   });
 };
+
+// Add these methods to your user controller
+
+// Submit a rating for a completed ride
+module.exports.submitRating = asyncHandler(async (req, res) => {
+  const { rideId, rating, feedback } = req.body;
+  
+  // Validate input
+  if (!rideId || !rating) {
+    return res.status(400).json({ message: "Ride ID and rating are required" });
+  }
+
+  if (rating < 1 || rating > 5) {
+    return res.status(400).json({ message: "Rating must be between 1 and 5" });
+  }
+
+  // Find the ride
+  const ride = await rideModel.findOne({
+    _id: rideId,
+    user: req.user._id,
+    status: 'completed'
+  });
+
+  if (!ride) {
+    return res.status(404).json({ message: "Completed ride not found" });
+  }
+
+  // Check if already rated
+  if (ride.rating) {
+    return res.status(400).json({ message: "You've already rated this ride" });
+  }
+
+  // Update the ride with rating
+  const updatedRide = await rideModel.findByIdAndUpdate(
+    rideId,
+    {
+      rating,
+      ratingComment: feedback || '',
+      ratedAt: new Date()
+    },
+    { new: true }
+  ).populate('captain', 'fullname');
+
+  // Update captain's average rating
+  await updateCaptainRating(ride.captain);
+
+  res.json({ 
+    message: "Rating submitted successfully",
+    ride: updatedRide
+  });
+});
+
+// Helper function to update captain's average rating
+async function updateCaptainRating(captainId) {
+  const result = await rideModel.aggregate([
+    {
+      $match: {
+        captain: captainId,
+        rating: { $exists: true }
+      }
+    },
+    {
+      $group: {
+        _id: null,
+        averageRating: { $avg: "$rating" },
+        ratingCount: { $sum: 1 }
+      }
+    }
+  ]);
+
+  if (result.length > 0) {
+    await captainModel.findByIdAndUpdate(captainId, {
+      rating: result[0].averageRating,
+      ratingCount: result[0].ratingCount
+    });
+  }
+}
+
+// Get all ratings given by a user
+module.exports.getUserRatings = asyncHandler(async (req, res) => {
+  const ratings = await rideModel.find({
+    user: req.user._id,
+    rating: { $exists: true }
+  })
+  .populate('captain', 'fullname vehicle')
+  .sort({ ratedAt: -1 });
+
+  res.json(ratings);
+});

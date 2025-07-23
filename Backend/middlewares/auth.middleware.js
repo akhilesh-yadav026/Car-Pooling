@@ -53,3 +53,31 @@ module.exports.authCaptain = async (req, res, next) => {
     return res.status(401).json({ message: "Unauthorized User", error });
   }
 };
+
+// Add this to your existing auth.middleware.js
+// ... existing code ...
+
+module.exports.authAdmin = async (req, res, next) => {
+  try {
+    const token = req.cookies.token || req.headers.token;
+    if (!token) return res.status(401).json({ message: "Authentication required" });
+
+    // Check if token is blacklisted
+    const isBlacklisted = await blacklistTokenModel.findOne({ token });
+    if (isBlacklisted) return res.status(401).json({ message: "Invalid token" });
+
+    const decoded = jwt.verify(token, secret);
+    if (decoded.role !== "admin") return res.status(403).json({ message: "Admin access required" });
+
+    const admin = await adminModel.findById(decoded._id);
+    if (!admin) return res.status(404).json({ message: "Admin not found" });
+
+    req.admin = admin;
+    next();
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Authentication failed" });
+  }
+};
+
+

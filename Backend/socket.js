@@ -14,6 +14,25 @@ function initializeSocket(server) {
 
   io.on("connection", (socket) => {
     console.log(`Client connected: ${socket.id}`);
+socket.on("payment-success", async ({ rideId }) => {
+  try {
+    const ride = await rideModel.findById(rideId);
+    ride.status = "completed";
+    await ride.save();
+
+    sendMessageToSocketId(ride.user.socketId, {
+      event: "ride-ended",
+      data: ride,
+    });
+
+    sendMessageToSocketId(ride.captain.socketId, {
+      event: "ride-ended",
+      data: ride,
+    });
+  } catch (err) {
+    console.log("Error on payment-success:", err);
+  }
+});
 
     socket.on("join", async (data) => {
       const { userId, userType } = data;

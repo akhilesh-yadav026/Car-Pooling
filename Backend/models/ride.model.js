@@ -26,7 +26,7 @@ const rideSchema = new mongoose.Schema(
     vehicle: {
       type: String,
       required: true,
-    }, 
+    },
     status: {
       type: String,
       enum: ["pending", "accepted", "ongoing", "completed", "cancelled"],
@@ -53,6 +53,21 @@ const rideSchema = new mongoose.Schema(
       type: String,
       select: false,
       required: true,
+    },
+    // Add these fields to your ride schema
+    rating: {
+      type: Number,
+      min: 1,
+      max: 5,
+      required: false
+    },
+    ratingComment: {
+      type: String,
+      required: false
+    },
+    ratedAt: {
+      type: Date,
+      required: false
     },
   },
   { timestamps: true }

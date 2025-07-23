@@ -17,6 +17,9 @@ const mapsRoutes = require("./routes/maps.routes");
 const rideRoutes = require("./routes/ride.routes");
 const keepServerRunning = require("./services/active.service");
 require("./config/db");
+const ratingRoutes = require("./routes/rating.routes")
+const adminRoutes = require('./routes/admin.routes');
+
 const PORT = process.env.PORT || 4000;
 
 app.use(morgan("dev"));
@@ -38,6 +41,8 @@ app.use("/captain", captainRoutes);
 app.use("/map", mapsRoutes);
 app.use("/ride", rideRoutes);
 app.use("/payment", require("./routes/paymentRoutes")); 
+app.use("/rating", ratingRoutes)
+app.use('/api/admin', adminRoutes);
 
 
 server.listen(PORT, () => {

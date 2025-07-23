@@ -40,7 +40,7 @@ function UserSignup() {
           data: response.data.user,
         })
       );
-      navigate("/home");
+      navigate("/login");
     } catch (error) {
       setResponseError(error.response?.data?.[0]?.msg || "Signup failed.");
     } finally {

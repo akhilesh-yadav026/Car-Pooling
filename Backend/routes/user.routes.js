@@ -28,5 +28,20 @@ router.get("/profile", authUser, userController.userProfile);
 router.get("/logout", authUser, userController.logoutUser);
 router.post("/forgotpassword",userController.forgotPassword)
 router.post("/resetpassword",userController.resetpassword)
+// Add these routes
+router.post("/rides/rate", 
+    body("rideId").notEmpty(),
+    body("rating").isInt({ min: 1, max: 5 }),
+    body("feedback").optional().isString().isLength({ max: 500 }),
+    authUser, // Your authentication middleware
+    userController.submitRating
+  );
+  
+ // user.routes.js (add this route)
+router.post("/rides/:rideId/rate", 
+  authUser,
+  body("rating").isInt({ min: 1, max: 5 }).withMessage("Rating must be between 1 and 5"),
+  userController.submitRating
+);
 
 module.exports = router;

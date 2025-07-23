@@ -89,6 +89,15 @@ function GetStarted() {
                           transition-all duration-300 transform hover:scale-[1.02] active:scale-100
                           flex items-center justify-center gap-2"
               />
+                <Button
+                title={"Admin"}
+                path={"/admin"}
+                type={"link"}
+                variant="outline"
+                className="w-full py-4 px-6 bg-transparent border-gray-300 text-gray-800 hover:bg-gray-100 text-lg font-semibold rounded-xl 
+                          transition-all duration-300 transform hover:scale-[1.02] active:scale-100
+                          flex items-center justify-center gap-2"
+              />
             </div>
 
             <div className="mt-6 flex flex-col sm:flex-row justify-center gap-4">

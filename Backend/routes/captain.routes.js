@@ -30,6 +30,9 @@ router.get("/logout", authCaptain, captainController.logoutCaptain);
 router.get("/stats", authCaptain, captainController.captainStats);
 router.post("/forgotpassword",captainController.forgotPassword)
 router.post("/resetpassword",captainController.resetpassword)
+// Add this route
+
+
 
 
 module.exports = router;

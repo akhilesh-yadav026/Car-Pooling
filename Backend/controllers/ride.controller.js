@@ -173,9 +173,18 @@ module.exports.endRide = async (req, res) => {
   try {
     const ride = await rideService.endRide({ rideId, captain: req.captain });
 
+    // Notify user to initiate payment
     sendMessageToSocketId(ride.user.socketId, {
-      event: "ride-ended",
-      data: ride,
+      event: "payment-required",
+      data: {
+        rideId: ride._id,
+        amount: ride.fare,
+        captain: {
+          _id: ride.captain._id,
+          fullname: ride.captain.fullname,
+          phone: ride.captain.phone,
+        },
+      },
     });
 
     return res.status(200).json(ride);
@@ -193,28 +202,25 @@ module.exports.cancelRide = async (req, res) => {
   const { rideId } = req.query;
 
   try {
-    const ride = await rideModel.findOneAndUpdate(
-      { _id: rideId },
-      {
-        status: "cancelled",
-      },
-      { new: true }
-    );
-    
-    const pickupCoordinates = await mapService.getAddressCoordinate(ride.pickup);
-    const captainsInRadius = await mapService.getCaptainsInTheRadius(
-      pickupCoordinates.ltd,
-      pickupCoordinates.lng,
-      4,
-      ride.vehicle
-    );
+    const ride = await rideModel
+      .findOneAndUpdate({ _id: rideId }, { status: "cancelled" }, { new: true })
+      .populate("user captain");
 
-    captainsInRadius.map((captain) => {
-      sendMessageToSocketId(captain.socketId, {
+    // Notify both user and captain
+    if (ride.user?.socketId) {
+      sendMessageToSocketId(ride.user.socketId, {
         event: "ride-cancelled",
         data: ride,
       });
-    });
+    }
+
+    if (ride.captain?.socketId) {
+      sendMessageToSocketId(ride.captain.socketId, {
+        event: "ride-cancelled",
+        data: ride,
+      });
+    }
+
     return res.status(200).json(ride);
   } catch (err) {
     return res.status(500).json({ message: err.message });

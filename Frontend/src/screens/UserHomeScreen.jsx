@@ -11,6 +11,17 @@ import {
 import axios from "axios";
 import debounce from "lodash.debounce";
 import { SocketDataContext } from "../contexts/SocketContext";
+import { Rating } from "../components/Rating";
+// Just below all your imports
+const loadRazorpayScript = () => {
+  return new Promise((resolve) => {
+    const script = document.createElement("script");
+    script.src = "https://checkout.razorpay.com/v1/checkout.js";
+    script.onload = () => resolve(true);
+    script.onerror = () => resolve(false);
+    document.body.appendChild(script);
+  });
+};
 
 function UserHomeScreen() {
   const token = localStorage.getItem("token"); // this token is in use
@@ -40,6 +51,8 @@ function UserHomeScreen() {
   const [showFindTripPanel, setShowFindTripPanel] = useState(true);
   const [showSelectVehiclePanel, setShowSelectVehiclePanel] = useState(false);
   const [showRideDetailsPanel, setShowRideDetailsPanel] = useState(false);
+  const [showRatingModal, setShowRatingModal] = useState(false);
+const [rideToRate, setRideToRate] = useState(null);
 
   const handleLocationChange = useCallback(
     debounce(async (inputValue, token) => {
@@ -253,6 +266,21 @@ function UserHomeScreen() {
 
     socket.on("ride-ended", (data) => {
       console.log("Ride Ended");
+      try {
+        const response = axios.get(
+          `${import.meta.env.VITE_SERVER_URL}/ride/${data._id}`,
+          {
+            headers: { token: localStorage.getItem("token") },
+          }
+        );
+        
+        if (!response.data.rating) {
+          setRideToRate(data._id);
+          setShowRatingModal(true);
+        }
+      } catch (error) {
+        console.error("Error checking ride rating status:", error);
+      }
       setShowRideDetailsPanel(false);
       setShowSelectVehiclePanel(false);
       setShowFindTripPanel(true);
@@ -273,6 +301,73 @@ function UserHomeScreen() {
         );
       }
     });
+    socket.on("payment-required", async (data) => {
+      console.log("Payment required", data);
+
+      const isLoaded = await loadRazorpayScript();
+      if (!isLoaded) {
+        alert("Failed to load Razorpay. Please try again.");
+        return;
+      }
+
+      const orderRes = await axios.post(
+        `${import.meta.env.VITE_SERVER_URL}/payment/create-order`,
+        {
+          amount: data.amount,
+          currency: "INR",
+          receipt: `receipt_${data.rideId}`,
+        }
+      );
+
+      const { id: order_id, currency, amount } = orderRes.data;
+
+      const options = {
+        key: "rzp_test_fiznZwAdVHPiRo",
+        amount,
+        currency,
+        name: "Car-Pooling",
+        description: "Ride Fare Payment",
+        order_id,
+        handler: async function (response) {
+        const verifyRes = await axios.post(
+        `${import.meta.env.VITE_SERVER_URL}/payment/verify-order`,
+    {
+      razorpay_order_id: response.razorpay_order_id,
+      razorpay_payment_id: response.razorpay_payment_id,
+      razorpay_signature: response.razorpay_signature,
+    }
+  );
+
+  if (verifyRes.data.status === "success") {
+    socket.emit("payment-success", { rideId: data.rideId });
+    setRideToRate(data.rideId);
+    setShowRatingModal(true);
+
+    // 🔥 ADD THESE 6 LINES to HIDE RideDetails panel:
+    setShowRideDetailsPanel(false);
+    setShowSelectVehiclePanel(false);
+    setShowFindTripPanel(true);
+    setDefaults();
+    localStorage.removeItem("rideDetails");
+    localStorage.removeItem("panelDetails");
+
+  } else {
+    alert("Payment verification failed");
+  }
+},
+
+        prefill: {
+          name: user.fullname.firstname,
+          email: user.email,
+          contact: user.phone,
+        },
+        theme: { color: "#3399cc" },
+      };
+
+      const rzp = new window.Razorpay(options);
+      rzp.open();
+    });
+
   }, [user]);
 
   // Get ride details
@@ -430,6 +525,15 @@ function UserHomeScreen() {
         rideCreated={rideCreated}
         confirmedRideData={confirmedRideData}
       />
+       {showRatingModal && rideToRate && (
+      <Rating
+        rideId={rideToRate}
+        onRatingSubmit={() => {
+          setShowRatingModal(false);
+          setRideToRate(null);
+        }}
+      />
+    )}
     </div>
   );
 }

@@ -133,84 +133,30 @@ function CaptainHomeScreen() {
 
   const endRide = async () => {
     try {
-      const isLoaded = await loadRazorpayScript();
-      if (!isLoaded) {
-        alert("Failed to load Razorpay. Please try again.");
-        return;
-      }
-  
-      // Step 1: Call backend to create a Razorpay order
-      const orderRes = await axios.post(
-        `${import.meta.env.VITE_SERVER_URL}/payment/create-order`,
-        {
-          amount: newRide.fare, // Amount in rupees
-          currency: "INR",
-          receipt: `receipt_${newRide._id}`,
-        }
+      setLoading(true);
+      const res = await axios.post(
+        `${import.meta.env.VITE_SERVER_URL}/ride/end-ride`,
+        { rideId: newRide._id },
+        { headers: { token } }
       );
-       console.log(orderRes);
-       
-      const { id: order_id, currency, amount } = orderRes.data;
-    
-      // Step 2: Show Razorpay checkout
-      const options = {
-        key: "rzp_test_fiznZwAdVHPiRo", // Replace with production key in production
-        amount,
-        currency,
-        name: "Ride Togater",
-        description: "Ride Fare Payment",
-        order_id,
-        handler: async function (response) {
-          // Optional: verify payment on the backend
-          const verifyRes = await axios.post(
-            `${import.meta.env.VITE_SERVER_URL}/payment/verify-order`,
-            {
-              razorpay_order_id: response.razorpay_order_id,
-              razorpay_payment_id: response.razorpay_payment_id,
-              razorpay_signature: response.razorpay_signature,
-            }
-          );
-  
-          if (verifyRes.data.status === "success") {
-            // Proceed with ending ride after successful payment
-            const res = await axios.post(
-              `${import.meta.env.VITE_SERVER_URL}/ride/end-ride`,
-              { rideId: newRide._id },
-              { headers: { token } }
-            );
-  
-            setMapLocation(
-              `https://www.google.com/maps?q=${riderLocation.ltd},${riderLocation.lng}&output=embed`
-            );
-            setShowBtn("accept");
-            setLoading(false);
-            setShowCaptainDetailsPanel(true);
-            setShowNewRidePanel(false);
-            setNewRide(defaultRideData);
-            localStorage.removeItem("rideDetails");
-            localStorage.removeItem("showPanel");
-          } else {
-            alert("Payment verification failed!");
-          }
-        },
-        prefill: {
-          name: captain.fullname.firstname,
-          email: captain.email,
-          contact: captain.phone,
-        },
-        theme: {
-          color: "#3399cc",
-        },
-      };
-  
-      const rzp = new window.Razorpay(options);
-      rzp.open();
+
+      setMapLocation(
+        `https://www.google.com/maps?q=${riderLocation.ltd},${riderLocation.lng}&output=embed`
+      );
+      setShowBtn("accept");
+      setLoading(false);
+      setShowCaptainDetailsPanel(true);
+      setShowNewRidePanel(false);
+      setNewRide(defaultRideData);
+      localStorage.removeItem("rideDetails");
+      localStorage.removeItem("showPanel");
     } catch (err) {
       setLoading(false);
       console.log(err);
     }
   };
-  
+
+
 
   const updateLocation = () => {
     if (navigator.geolocation) {

@@ -99,46 +99,132 @@ module.exports.logoutCaptain = asyncHandler(async (req, res) => {
   res.status(200).json({ message: "Logged out successfully" });
 });
 
+// module.exports.captainStats = asyncHandler(async (req, res) => {
+//   // You'll need to implement these queries based on your database structure
+//   const todayRides = await rideModel.countDocuments({ 
+//     captain: req.captain._id, 
+//     createdAt: { 
+//       $gte: new Date().setHours(0, 0, 0, 0) 
+//     } 
+//   });
+  
+//   const todayEarnings = await rideModel.aggregate([
+//     { 
+//       $match: { 
+//         captain: req.captain._id,
+//         createdAt: { $gte: new Date().setHours(0, 0, 0, 0) },
+//         status: 'completed'
+//       }
+//     },
+//     { $group: { _id: null, total: { $sum: "$fare" } } }
+//   ]);
+  
+//   const recentRides = await rideModel.find({ captain: req.captain._id })
+//     .sort({ createdAt: -1 })
+//     .limit(5)
+//     .lean();
+    
+//   // Calculate rating (assuming you have this field)
+//   const rating = req.captain.rating || 0;
+  
+//   res.json({
+//     todayRides,
+//     todayEarnings: todayEarnings[0]?.total || 0,
+//     recentRides,
+//     rating,
+//     // These would require more complex queries for changes
+//     rideChange: 0, // % change from yesterday
+//     earningsChange: 0, // % change from yesterday
+//     ratingChange: 0, // % change from last week
+//     activeHours: 0, // Today's active hours
+//     hoursChange: 0 // % change from yesterday
+//   });
+// });
+// captain.controller.js
+// Update the captainStats function to include better rating calculations
 module.exports.captainStats = asyncHandler(async (req, res) => {
-  // You'll need to implement these queries based on your database structure
-  const todayRides = await rideModel.countDocuments({ 
-    captain: req.captain._id, 
-    createdAt: { 
-      $gte: new Date().setHours(0, 0, 0, 0) 
-    } 
-  });
-  
-  const todayEarnings = await rideModel.aggregate([
-    { 
-      $match: { 
-        captain: req.captain._id,
-        createdAt: { $gte: new Date().setHours(0, 0, 0, 0) },
-        status: 'completed'
-      }
-    },
-    { $group: { _id: null, total: { $sum: "$fare" } } }
-  ]);
-  
-  const recentRides = await rideModel.find({ captain: req.captain._id })
+  try {
+    // Today's rides count
+    const todayRides = await rideModel.countDocuments({ 
+      captain: req.captain._id, 
+      createdAt: { 
+        $gte: new Date(new Date().setHours(0, 0, 0, 0))
+      },
+      status: 'completed'
+    });
+
+    // Today's earnings
+    const todayEarningsAgg = await rideModel.aggregate([
+      { 
+        $match: { 
+          captain: req.captain._id,
+          createdAt: { $gte: new Date(new Date().setHours(0, 0, 0, 0)) },
+          status: 'completed'
+        }
+      },
+      { $group: { _id: null, total: { $sum: "$fare" } } }
+    ]);
+    const todayEarnings = todayEarningsAgg[0]?.total || 0;
+
+    // Recent rides
+    const recentRides = await rideModel.find({ 
+      captain: req.captain._id,
+      status: 'completed'
+    })
     .sort({ createdAt: -1 })
     .limit(5)
     .lean();
-    
-  // Calculate rating (assuming you have this field)
-  const rating = req.captain.rating || 0;
-  
-  res.json({
-    todayRides,
-    todayEarnings: todayEarnings[0]?.total || 0,
-    recentRides,
-    rating,
-    // These would require more complex queries for changes
-    rideChange: 0, // % change from yesterday
-    earningsChange: 0, // % change from yesterday
-    ratingChange: 0, // % change from last week
-    activeHours: 0, // Today's active hours
-    hoursChange: 0 // % change from yesterday
-  });
+
+    // Calculate rating change (last 7 days vs previous 7 days)
+    const now = new Date();
+    const last7DaysStart = new Date(now.setDate(now.getDate() - 7));
+    const last7DaysEnd = new Date();
+    const prev7DaysStart = new Date(now.setDate(now.getDate() - 7));
+    const prev7DaysEnd = last7DaysStart;
+
+    const last7DaysRating = await rideModel.aggregate([
+      {
+        $match: {
+          captain: req.captain._id,
+          ratedAt: { $gte: last7DaysStart, $lt: last7DaysEnd },
+          rating: { $exists: true }
+        }
+      },
+      { $group: { _id: null, avg: { $avg: "$rating" } } }
+    ]);
+
+    const prev7DaysRating = await rideModel.aggregate([
+      {
+        $match: {
+          captain: req.captain._id,
+          ratedAt: { $gte: prev7DaysStart, $lt: prev7DaysEnd },
+          rating: { $exists: true }
+        }
+      },
+      { $group: { _id: null, avg: { $avg: "$rating" } } }
+    ]);
+
+    const currentRating = last7DaysRating[0]?.avg || req.captain.rating || 0;
+    const previousRating = prev7DaysRating[0]?.avg || currentRating;
+    const ratingChange = previousRating > 0 
+      ? ((currentRating - previousRating) / previousRating * 100).toFixed(1)
+      : 0;
+
+    res.json({
+      todayRides,
+      todayEarnings,
+      recentRides,
+      rating: currentRating,
+      rideChange: 0, // % change from yesterday
+      earningsChange: 0, // % change from yesterday
+      ratingChange: Number(ratingChange),
+      activeHours: 0, // Today's active hours
+      hoursChange: 0 // % change from yesterday
+    });
+  } catch (error) {
+    console.error('Error in captainStats:', error);
+    res.status(500).json({ message: 'Failed to fetch stats', error: error.message });
+  }
 });
 
 module.exports.forgotPassword = async (req, res) => {
@@ -181,3 +267,6 @@ module.exports.resetpassword = async (req, res) => {
     message: "password updated successfully..",
   });
 };
+
+// Add these methods to your captain controller
+

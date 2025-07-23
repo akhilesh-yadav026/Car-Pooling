@@ -42,7 +42,7 @@ function CaptainSignup() {
         captainData
       );
       localStorage.setItem("token", response.data.token);
-      navigation("/captain/home");
+      navigation("/captain/login");
     } catch (error) {
       setResponseError(
         error.response?.data?.[0]?.msg ||
